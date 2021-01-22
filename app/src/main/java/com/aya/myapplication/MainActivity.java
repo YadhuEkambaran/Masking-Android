@@ -15,7 +15,7 @@ import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String PATTERN = "##/##";
+    private static final String PATTERN = "(###) ### ####";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         EditText editText = findViewById(R.id.edt_text);
-        editText.setKeyListener(DigitsKeyListener.getInstance("0123456789/"));
+        editText.setKeyListener(DigitsKeyListener.getInstance("0123456789 ()"));
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(PATTERN.length()), inputFilter});
     }
 
