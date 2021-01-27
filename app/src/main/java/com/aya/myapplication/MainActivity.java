@@ -3,17 +3,17 @@ package com.aya.myapplication;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String PATTERN = "##/##";
+    private static final String PATTERN = "### ###";
 
     private static final String DIGITS_FOR_TEXT = "0123456789 abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String DIGITS_FOR_NUMBER = "0123456789 ";
@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         editText = findViewById(R.id.edt_text);
-        editText.setKeyListener(DigitsKeyListener.getInstance(DIGITS_FOR_NUMBER));
+        editText.setKeyListener(DigitsKeyListener.getInstance(DIGITS_FOR_TEXT));
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(PATTERN.length()), inputFilter});
         addWatcher();
     }
@@ -73,10 +74,11 @@ public class MainActivity extends AppCompatActivity {
         char[] patternChars = PATTERN.toCharArray();
 
         SpannableStringBuilder charBuilder = new SpannableStringBuilder(sequence);
-        String formattingText = charBuilder.toString().replaceAll("[^0-9]", "");
+        String formattingText = charBuilder.toString().replaceAll("[^[0-9][A-Z][a-z]]", "");
         if (formattingText.length() <= 0) {
             return;
         }
+
         SpannableStringBuilder builder = new SpannableStringBuilder();
         int patternPosition = 0;
         for (int i = 0; i < formattingText.length(); i++) {
@@ -87,12 +89,14 @@ public class MainActivity extends AppCompatActivity {
                     builder.append(patternChar);
                     patternChar = patternChars[patternPosition++];
                 }
-                builder.append(textChar);
+
+                char letter = Character.toUpperCase(textChar);
+                builder.append(letter);
             }
         }
 
         int position = builder.length();
-        if (prevLength > builder.length()) {
+        if (prevLength > builder.length() && !isAlphabetExist(builder.toString())) {
             position = getPosition(start);
         }
 
@@ -102,9 +106,6 @@ public class MainActivity extends AppCompatActivity {
         editText.setSelection(position);
 
         addWatcher();
-
-
-        Log.d(TAG, "--- LENGTH ---" + builder.length());
     }
 
     private int getPosition(int position) {
@@ -124,7 +125,26 @@ public class MainActivity extends AppCompatActivity {
             Integer.parseInt(number + "");
             return true;
         } catch (Exception e) {
-            return false;
+            return isChar(number);
         }
+    }
+
+    private boolean isAlphabetExist(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            char letter = text.charAt(i);
+            if (isChar(letter)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isChar(char letter) {
+        if ((letter >= 'A' && letter <= 'Z') || (letter >= 'a' && letter <= 'z')) {
+            return true;
+        }
+
+        return false;
     }
 }
